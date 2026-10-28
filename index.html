@@ -1,0 +1,270 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>NYC Marathon Cheer Map</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;800&family=Source+Sans+3:wght@400;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: race-bib header, then map + mile sheet side by side (stacked on phones) */
+:root{
+  --bg:#f3f5f8; --surface:#ffffff; --fg:#14202e; --muted:#5b6878; --line:#d5dbe3;
+  --route:#ff6a13; --route-soft:#ffe3d1; --blue:#1f4fa8; --water:#dbe7f5; --land:#eef1f5;
+  --nogo:#9aa4b1;
+  --display:"Barlow Condensed","Arial Narrow",sans-serif;
+  --body:"Source Sans 3",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f151d; --surface:#17202b; --fg:#e8edf3; --muted:#9aa7b6; --line:#2a3644;
+  --route:#ff7f33; --route-soft:#3a2416; --blue:#7fa6ee; --water:#16283d; --land:#1b2532; --nogo:#5f6b79; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f151d; --surface:#17202b; --fg:#e8edf3; --muted:#9aa7b6; --line:#2a3644;
+  --route:#ff7f33; --route-soft:#3a2416; --blue:#7fa6ee; --water:#16283d; --land:#1b2532; --nogo:#5f6b79; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.45;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+header{display:flex;flex-wrap:wrap;gap:16px 28px;align-items:flex-end;justify-content:space-between;border-bottom:3px solid var(--route);padding-bottom:14px}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(2rem,5vw,3.1rem);line-height:.95;margin:0;text-transform:uppercase;letter-spacing:.01em;text-wrap:balance}
+h1 span{color:var(--route)}
+.sub{color:var(--muted);margin:6px 0 0}
+.bib{display:flex;gap:8px;flex-wrap:wrap}
+.chip{font-family:var(--display);font-weight:600;font-size:1.05rem;letter-spacing:.04em;text-transform:uppercase;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:6px 10px}
+.chip b{color:var(--route);font-weight:800}
+.controls{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;font-size:.95rem}
+.controls label{color:var(--muted)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:var(--surface)}
+.seg button{font:inherit;font-family:var(--mono);font-size:.85rem;border:0;background:transparent;color:var(--fg);padding:6px 10px;cursor:pointer}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--route);color:#fff}
+.seg button:focus-visible,.row:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:20px;align-items:start}
+@media (max-width:860px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px}
+.map{padding:10px;position:sticky;top:max(12px,env(safe-area-inset-top,0px))}
+@media (max-width:860px){.map{position:static}}
+.map svg{width:100%;height:auto;display:block;max-height:82vh}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.8rem;color:var(--muted);padding:6px 6px 2px}
+.legend i{display:inline-block;width:18px;height:4px;border-radius:2px;vertical-align:middle;margin-right:5px}
+.sheet{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th{font-family:var(--display);font-weight:600;text-transform:uppercase;letter-spacing:.06em;font-size:.82rem;color:var(--muted);text-align:left;padding:10px 10px;border-bottom:2px solid var(--line);position:sticky;top:0;background:var(--surface)}
+td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.row{cursor:pointer}
+.row:hover td{background:var(--route-soft)}
+.row.on td{background:var(--route-soft)}
+.mi{font-family:var(--display);font-weight:800;font-size:1.35rem;color:var(--route);width:2.6em;line-height:1}
+.where b{display:block;font-weight:700}
+.where small{color:var(--muted)}
+.t{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap;font-size:.88rem}
+.win{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:500}
+.train{font-size:.82rem;color:var(--muted);max-width:16em}
+.nogo td{color:var(--nogo)}
+.nogo .mi{color:var(--nogo)}
+.tag{display:inline-block;font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-radius:4px;padding:1px 6px;margin-left:6px;vertical-align:1px}
+.tag.no{background:var(--line);color:var(--muted)}
+.tag.pick{background:var(--route);color:#fff}
+.split td{background:transparent;padding:6px 10px;font-family:var(--display);font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--blue);font-size:.85rem;border-bottom:1px solid var(--line)}
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.note{padding:14px 16px}
+.note h2{font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:1.25rem;margin:0 0 6px;letter-spacing:.02em}
+.note p,.note li{margin:0;color:var(--fg);font-size:.93rem;max-width:65ch}
+.note ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
+.fine{font-size:.8rem;color:var(--muted)}
+svg text{font-family:var(--body)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>NYC Marathon <span>Cheer Map</span></h1>
+      <p class="sub">Sunday, Nov 1, 2026 · Staten Island to Central Park · when to be where for a 10–11 min/mile runner</p>
+    </div>
+    <div class="bib">
+      <div class="chip">Wave <b>5</b></div>
+      <div class="chip">Gun <b>11:30</b></div>
+      <div class="chip">Pace <b>10:00–11:00</b>/mi</div>
+      <div class="chip">Finish <b id="finchip">3:52–4:18 PM</b></div>
+    </div>
+  </header>
+
+  <div class="controls">
+    <label for="d0">Time to cross the start mat after the gun:</label>
+    <div class="seg" role="group" aria-label="Start delay">
+      <button id="d0" data-d="0" aria-pressed="true">+0</button>
+      <button id="d5" data-d="5" aria-pressed="false">+5</button>
+      <button id="d10" data-d="10" aria-pressed="false">+10</button>
+      <button id="d15" data-d="15" aria-pressed="false">+15 min</button>
+    </div>
+    <span class="fine">Back corrals in a wave can take several minutes to reach the mat. Tap a mile to find it on the map.</span>
+  </div>
+
+  <div class="grid">
+    <div class="panel map">
+      <svg id="map" viewBox="0 0 420 760" role="img" aria-label="Schematic map of the NYC Marathon course with mile markers"></svg>
+      <div class="legend">
+        <span><i style="background:var(--route)"></i>Course</span>
+        <span><i style="background:var(--nogo)"></i>Bridge, no spectators</span>
+        <span>★ Suggested cheer spots</span>
+      </div>
+    </div>
+
+    <div class="panel sheet">
+      <table>
+        <thead><tr><th>Mile</th><th>Where</th><th>At 10:00</th><th>At 11:00</th><th>Subway</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="notes">
+    <div class="panel note">
+      <h2>See them three times</h2>
+      <ul>
+        <li><b>Mile 8, Atlantic Ave / Barclays</b> — huge hub, many trains.</li>
+        <li><b>Mile 17–18, 1st Ave (UES)</b> — take the Q from Atlantic Ave straight up to 86th or 96th St, walk east.</li>
+        <li><b>Mile 23, 5th Ave ~102nd St</b> — walk west from 1st Ave across 96th–102nd (about 15 min). Runners take ~50 min to loop through the Bronx, so there's time.</li>
+        <li><b>Finish</b> — meet at Family Reunion on Central Park West (W 62nd–65th St).</li>
+      </ul>
+    </div>
+    <div class="panel note">
+      <h2>Spectator tips</h2>
+      <ul>
+        <li>Track live in the free TCS NYC Marathon app (bib number or name). Splits post every 5K, so trust it over this sheet.</li>
+        <li>Agree ahead of time on which side of the street you'll stand. On 1st Ave, the west side is easier for getting back to the subway.</li>
+        <li>No spectators on bridges (miles 1–2, 13 into Queens, 15, 20–21) or on the post-finish stretch north of the grandstands.</li>
+        <li>Bring a sign or a bright balloon. Wave 5 crowds are big, and runners spot colors before faces.</li>
+      </ul>
+    </div>
+    <div class="panel note">
+      <h2>About these times</h2>
+      <p>Times are gun time + (mile × pace) + the start delay you pick above. Many runners slow in the back half, so expect them nearer the 11:00 column after mile 20 (1st Ave → Bronx → 5th Ave hill). Locations are approximate cross streets, and the map is a schematic, not a street map. Confirm the wave start in the official app the day before.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+const GUN = 11*60+30;
+const miles = [
+  {m:1, where:"Verrazzano-Narrows Bridge, mid-span", area:"Staten Island → Brooklyn", train:"—", no:true, ll:[40.6066,-74.0450]},
+  {m:2, where:"Bridge exit onto 92nd St", area:"Bay Ridge, Brooklyn", train:"—", no:true, ll:[40.6150,-74.0315]},
+  {m:3, where:"4th Ave & ~86th St", area:"Bay Ridge", train:"R · 86th St", ll:[40.6222,-74.0282]},
+  {m:4, where:"4th Ave & ~66th St", area:"Bay Ridge / Sunset Park", train:"R · Bay Ridge Ave", ll:[40.6352,-74.0205]},
+  {m:5, where:"4th Ave & ~45th St", area:"Sunset Park", train:"R · 45th St", ll:[40.6482,-74.0092]},
+  {m:6, where:"4th Ave & ~25th St", area:"Greenwood Heights", train:"R · 25th St", ll:[40.6607,-73.9962]},
+  {m:7, where:"4th Ave & ~Union St", area:"Park Slope", train:"R · Union St", ll:[40.6772,-73.9832]},
+  {m:8, where:"Flatbush & Atlantic Ave (Barclays)", area:"Fort Greene", train:"2 3 4 5 B D N Q R · Atlantic Av", pick:true, ll:[40.6838,-73.9768]},
+  {m:9, where:"Lafayette Ave & ~Classon Ave", area:"Clinton Hill", train:"C · Lafayette Av · G · Clinton-Washington", ll:[40.6888,-73.9600]},
+  {m:10, where:"Bedford Ave & ~Flushing Ave", area:"Bed-Stuy / Williamsburg", train:"G · Flushing Av", ll:[40.6985,-73.9566]},
+  {m:11, where:"Bedford Ave & ~S 3rd St", area:"Williamsburg", train:"J M Z · Marcy Av", ll:[40.7112,-73.9620]},
+  {m:12, where:"Bedford Ave & ~N 12th St (McCarren Park)", area:"Williamsburg / Greenpoint", train:"L · Bedford Av · G · Nassau Av", ll:[40.7212,-73.9545]},
+  {m:13, where:"Manhattan Ave → McGuinness Blvd", area:"Greenpoint", train:"G · Greenpoint Av", ll:[40.7325,-73.9530]},
+  {m:13.1, half:true},
+  {m:14, where:"Jackson Ave & ~44th Dr", area:"Long Island City, Queens", train:"7 · Vernon Blvd-Jackson Av · E M G · Court Sq", ll:[40.7465,-73.9468]},
+  {m:15, where:"Queensboro Bridge", area:"Queens → Manhattan", train:"—", no:true, ll:[40.7568,-73.9520]},
+  {m:16, where:"1st Ave & ~61st St", area:"Upper East Side", train:"N R W · Lexington Av/59 · 4 5 6 · 59th St", ll:[40.7612,-73.9600]},
+  {m:17, where:"1st Ave & ~79th St", area:"Upper East Side", train:"Q · 72nd St or 86th St (2nd Ave)", pick:true, ll:[40.7728,-73.9515]},
+  {m:18, where:"1st Ave & ~97th St", area:"East Harlem", train:"Q · 96th St (2nd Ave) · 6 · 96th St", pick:true, ll:[40.7852,-73.9425]},
+  {m:19, where:"1st Ave & ~116th St", area:"East Harlem", train:"6 · 116th St", ll:[40.7968,-73.9335]},
+  {m:20, where:"Willis Ave Bridge → E 138th St", area:"Mott Haven, Bronx", train:"6 · 3rd Av-138th St", ll:[40.8105,-73.9255]},
+  {m:21, where:"Madison Ave Bridge → 5th Ave & ~135th St", area:"Harlem", train:"2 3 · 135th St", ll:[40.8128,-73.9390]},
+  {m:22, where:"5th Ave & ~120th St (Marcus Garvey Park)", area:"Harlem", train:"2 3 · 116th or 125th St", ll:[40.8030,-73.9450]},
+  {m:23, where:"5th Ave & ~102nd St", area:"East Harlem / Museum Mile", train:"6 · 103rd St", pick:true, ll:[40.7922,-73.9528]},
+  {m:24, where:"Central Park East Drive & ~84th St", area:"Central Park (enters at E 90th)", train:"4 5 6 · 86th St", ll:[40.7798,-73.9628]},
+  {m:25, where:"Central Park, ~E 65th St → Central Park South", area:"Central Park", train:"N R W · 5th Av/59 St", ll:[40.7665,-73.9718]},
+  {m:26, where:"Columbus Circle, back into the park", area:"Central Park", train:"A B C D 1 · 59th St-Columbus Circle", ll:[40.7685,-73.9812]},
+  {m:26.2, where:"FINISH · W 67th St, Tavern on the Green", area:"Grandstands are ticketed; meet at Family Reunion, CPW 62nd–65th", train:"1 · 66th St · B C · 72nd St", fin:true, ll:[40.7722,-73.9775]},
+];
+// route waypoints between miles (lat, lon)
+const route = [
+  [40.6040,-74.0605],[40.6066,-74.0450],[40.6130,-74.0340],[40.6150,-74.0315],[40.6168,-74.0305],
+  [40.6222,-74.0282],[40.6352,-74.0205],[40.6482,-74.0092],[40.6607,-73.9962],[40.6772,-73.9832],[40.6838,-73.9768],
+  [40.6862,-73.9700],[40.6888,-73.9600],[40.6895,-73.9548],[40.6985,-73.9566],[40.7112,-73.9620],[40.7180,-73.9575],[40.7212,-73.9545],
+  [40.7300,-73.9545],[40.7325,-73.9530],[40.7400,-73.9510],[40.7445,-73.9490],[40.7465,-73.9468],[40.7505,-73.9420],[40.7535,-73.9405],
+  [40.7568,-73.9520],[40.7595,-73.9605],[40.7612,-73.9600],[40.7728,-73.9515],[40.7852,-73.9425],[40.7968,-73.9335],[40.8020,-73.9298],
+  [40.8075,-73.9268],[40.8105,-73.9255],[40.8122,-73.9300],[40.8135,-73.9340],[40.8128,-73.9390],[40.8030,-73.9450],[40.7922,-73.9528],
+  [40.7845,-73.9585],[40.7798,-73.9628],[40.7700,-73.9695],[40.7665,-73.9718],[40.7645,-73.9735],[40.7668,-73.9800],[40.7685,-73.9812],[40.7722,-73.9775]
+];
+const LAT0=40.822, LON0=-74.072, K=3150, C=Math.cos(40.71*Math.PI/180);
+const P=([la,lo])=>[ (lo-LON0)*C*K + 12, (LAT0-la)*K + 10 ];
+const ns="http://www.w3.org/2000/svg", svg=document.getElementById("map");
+const el=(t,a,parent=svg)=>{const e=document.createElementNS(ns,t);for(const k in a)e.setAttribute(k,a[k]);parent.appendChild(e);return e;};
+// rough land masses (schematic)
+const blob=(pts,fill)=>el("path",{d:"M"+pts.map(p=>P(p).map(n=>n.toFixed(1)).join(",")).join("L")+"Z",fill,stroke:"none"});
+el("rect",{x:0,y:0,width:420,height:760,fill:"var(--water)"});
+blob([[40.640,-74.075],[40.640,-74.072],[40.618,-74.068],[40.603,-74.058],[40.596,-74.072],[40.596,-74.076]],"var(--land)"); // Staten Is.
+blob([[40.596,-74.040],[40.614,-74.038],[40.640,-74.025],[40.655,-74.020],[40.680,-74.000],[40.700,-73.995],[40.705,-73.975],[40.722,-73.962],[40.735,-73.960],[40.739,-73.953],[40.725,-73.930],[40.690,-73.905],[40.596,-73.905]],"var(--land)"); // Brooklyn
+blob([[40.739,-73.953],[40.746,-73.958],[40.760,-73.946],[40.775,-73.938],[40.790,-73.912],[40.790,-73.905],[40.725,-73.905],[40.725,-73.930]],"var(--land)"); // Queens
+blob([[40.700,-74.019],[40.708,-73.998],[40.712,-73.976],[40.728,-73.972],[40.745,-73.970],[40.760,-73.957],[40.775,-73.943],[40.790,-73.935],[40.798,-73.928],[40.806,-73.932],[40.814,-73.935],[40.822,-73.938],[40.822,-73.955],[40.800,-73.973],[40.770,-73.995],[40.740,-74.010],[40.715,-74.016]],"var(--land)"); // Manhattan
+blob([[40.806,-73.932],[40.802,-73.924],[40.806,-73.910],[40.822,-73.905],[40.822,-73.938],[40.814,-73.935]],"var(--land)"); // Bronx
+// Central Park
+blob([[40.7682,-73.9813],[40.7967,-73.9493],[40.8003,-73.9580],[40.7712,-73.9821]].map(x=>x),"var(--line)").setAttribute("opacity",".55");
+[["STATEN ISLAND",40.612,-74.071,"end"],["BROOKLYN",40.655,-73.960],["QUEENS",40.758,-73.922],["MANHATTAN",40.752,-73.990],["BRONX",40.818,-73.915],["Central Park",40.784,-73.974]].forEach(([t,la,lo,anc])=>{
+  const [x,y]=P([la,lo]); const tx=el("text",{x,y,"text-anchor":anc||"middle","font-size":t==="Central Park"?10:12,"font-weight":700,"letter-spacing":"1.5",fill:"var(--muted)",opacity:.8}); tx.textContent=t;
+  if(t==="Central Park"){tx.setAttribute("transform",`rotate(-58 ${x} ${y})`);tx.setAttribute("font-weight",600);tx.setAttribute("letter-spacing",".5");}
+});
+// route: draw as segments; bridges grey
+const bridges=[[0,3],[19,22],[23,27],[31,36]];
+const pts=route.map(P);
+el("polyline",{points:pts.map(p=>p.join(",")).join(" "),fill:"none",stroke:"var(--surface)","stroke-width":9,"stroke-linejoin":"round","stroke-linecap":"round"});
+el("polyline",{points:pts.map(p=>p.join(",")).join(" "),fill:"none",stroke:"var(--route)","stroke-width":5,"stroke-linejoin":"round","stroke-linecap":"round"});
+bridges.forEach(([a,b])=>el("polyline",{points:pts.slice(a,b+1).map(p=>p.join(",")).join(" "),fill:"none",stroke:"var(--nogo)","stroke-width":5,"stroke-linecap":"round","stroke-dasharray":"2 4"}));
+// start
+const s=P(route[0]); el("circle",{cx:s[0],cy:s[1],r:7,fill:"var(--blue)"});
+const st=el("text",{x:s[0]+2,y:s[1]+20,"font-size":11,"font-weight":700,fill:"var(--blue)"}); st.textContent="START · Ft Wadsworth";
+// labels offsets for legibility
+const off={1:[0,-12],2:[12,4],3:[-14,4],4:[-14,4],5:[-14,4],6:[-14,4],7:[-14,4],8:[-14,4],9:[0,-11],10:[12,4],11:[-14,4],12:[12,4],13:[12,4],14:[13,4],15:[0,-11],16:[-14,4],17:[-14,4],18:[-14,4],19:[-14,4],20:[12,6],21:[-6,-11],22:[-14,4],23:[-14,4],24:[-14,4],25:[6,14],26:[-14,0],26.2:[0,-12]};
+const dots={};
+miles.filter(x=>!x.half).forEach(x=>{
+  const [cx,cy]=P(x.ll); const g=el("g",{style:"cursor:pointer"}); g.dataset.m=x.m;
+  const c=el("circle",{cx,cy,r:x.fin?8:6,fill:x.fin?"var(--fg)":(x.no?"var(--nogo)":"var(--surface)"),stroke:x.no?"var(--nogo)":"var(--route)","stroke-width":2.2},g);
+  const [dx,dy]=off[x.m]||[12,4];
+  const t=el("text",{x:cx+dx,y:cy+dy,"text-anchor":dx<0?"end":(dx===0?"middle":"start"),"font-size":x.pick?13:11.5,"font-weight":800,fill:x.no?"var(--nogo)":"var(--fg)"},g);
+  t.textContent=(x.pick?"★ ":"")+(x.fin?"FINISH":x.m);
+  g.addEventListener("click",()=>select(x.m,true));
+  dots[x.m]={c,base:c.getAttribute("r")};
+});
+// halfway marker
+const h=P([40.7400,-73.9510]); el("rect",{x:h[0]-4,y:h[1]-4,width:8,height:8,fill:"var(--blue)",transform:`rotate(45 ${h[0]} ${h[1]})`});
+const ht=el("text",{x:h[0]+10,y:h[1]+4,"font-size":10.5,"font-weight":700,fill:"var(--blue)"}); ht.textContent="HALF · Pulaski Br.";
+
+// table
+let delay=0;
+const fmt=min=>{min=Math.round(min);let h=Math.floor(min/60)%24,m=min%60;const ap=h>=12?"PM":"AM";h=h%12||12;return `${h}:${String(m).padStart(2,"0")} ${ap}`;};
+const fmtS=min=>fmt(min).replace(/ (AM|PM)/,"");
+const tb=document.getElementById("rows");
+function render(){
+  tb.innerHTML="";
+  const boro=(m)=>m<=2?null:m<=13?"Brooklyn":m<=15?"Queens":m<=19?"Manhattan · 1st Ave":m<=20?"The Bronx":"Manhattan · 5th Ave & Central Park";
+  let last=null;
+  miles.forEach(x=>{
+    const t10=GUN+delay+x.m*10, t11=GUN+delay+x.m*11;
+    if(x.half){const tr=document.createElement("tr");tr.className="split";tr.innerHTML=`<td colspan="5">Halfway · 13.1 mi · ${fmtS(t10)}–${fmt(t11)} · Pulaski Bridge into Queens</td>`;tb.appendChild(tr);return;}
+    const b=boro(x.m); if(b&&b!==last&&!x.fin){last=b;const tr=document.createElement("tr");tr.className="split";tr.innerHTML=`<td colspan="5">${b}</td>`;tb.appendChild(tr);}
+    const tr=document.createElement("tr"); tr.className="row"+(x.no?" nogo":""); tr.tabIndex=0; tr.dataset.m=x.m;
+    tr.innerHTML=`<td class="mi">${x.fin?"26.2":x.m}</td>
+      <td class="where"><b>${x.where}${x.no?'<span class="tag no">No spectators</span>':""}${x.pick?'<span class="tag pick">Cheer spot</span>':""}</b><small>${x.area}</small></td>
+      <td class="t">${fmt(t10)}</td><td class="t">${fmt(t11)}</td><td class="train">${x.train}</td>`;
+    tr.addEventListener("click",()=>select(x.m));
+    tr.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();select(x.m);}});
+    tb.appendChild(tr);
+  });
+  document.getElementById("finchip").textContent=`${fmtS(GUN+delay+262)}–${fmt(GUN+delay+288.2)}`;
+  if(cur!=null) select(cur);
+}
+let cur=null;
+function select(m,scroll){
+  cur=m;
+  document.querySelectorAll(".row").forEach(r=>r.classList.toggle("on",+r.dataset.m===m));
+  for(const k in dots){const d=dots[k];d.c.setAttribute("r",+k===m?11:d.base);d.c.setAttribute("stroke-width",+k===m?4:2.2);}
+  if(scroll){const r=document.querySelector(`.row[data-m="${m}"]`);r&&r.scrollIntoView({block:"center",behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});}
+}
+document.querySelectorAll(".seg button").forEach(b=>b.addEventListener("click",()=>{
+  delay=+b.dataset.d; document.querySelectorAll(".seg button").forEach(x=>x.setAttribute("aria-pressed",x===b));
+  try{localStorage.setItem("delay",delay)}catch(e){}
+  render();
+}));
+try{const d=localStorage.getItem("delay");if(d!==null){delay=+d;document.querySelectorAll(".seg button").forEach(x=>x.setAttribute("aria-pressed",+x.dataset.d===delay));}}catch(e){}
+render();
+</script>
+
+</body></html>
