@@ -1,4 +1,9 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}</style>
 <title>NYC Marathon Cheer Map</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -33,9 +38,10 @@ h1 span{color:var(--route)}
 .controls label{color:var(--muted)}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:var(--surface)}
 .seg button{font:inherit;font-family:var(--mono);font-size:.85rem;border:0;background:transparent;color:var(--fg);padding:6px 10px;cursor:pointer}
-.seg button+button{border-left:1px solid var(--line)}
-.seg button[aria-pressed="true"]{background:var(--route);color:#fff}
-.seg button:focus-visible,.row:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+#start{font-family:var(--mono);font-size:1rem;font-variant-numeric:tabular-nums;color:var(--fg);background:var(--surface);border:2px solid var(--route);border-radius:6px;padding:5px 8px}
+.reset{font:inherit;font-size:.85rem;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:6px 10px;cursor:pointer}
+.reset:hover{border-color:var(--route)}
+#start:focus-visible,.reset:focus-visible,.row:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 .grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:20px;align-items:start}
 @media (max-width:860px){.grid{grid-template-columns:1fr}}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:10px}
@@ -72,6 +78,8 @@ td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
 svg text{font-family:var(--body)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
+</head>
+<body>
 
 <div class="wrap">
   <header>
@@ -81,21 +89,17 @@ svg text{font-family:var(--body)}
     </div>
     <div class="bib">
       <div class="chip">Wave <b>5</b></div>
-      <div class="chip">Gun <b>11:30</b></div>
+      <div class="chip">Start <b id="startchip">11:30</b></div>
       <div class="chip">Pace <b>10:00–11:00</b>/mi</div>
       <div class="chip">Finish <b id="finchip">3:52–4:18 PM</b></div>
     </div>
   </header>
 
   <div class="controls">
-    <label for="d0">Time to cross the start mat after the gun:</label>
-    <div class="seg" role="group" aria-label="Start delay">
-      <button id="d0" data-d="0" aria-pressed="true">+0</button>
-      <button id="d5" data-d="5" aria-pressed="false">+5</button>
-      <button id="d10" data-d="10" aria-pressed="false">+10</button>
-      <button id="d15" data-d="15" aria-pressed="false">+15 min</button>
-    </div>
-    <span class="fine">Back corrals in a wave can take several minutes to reach the mat. Tap a mile to find it on the map.</span>
+    <label for="start">Crossed the start mat at:</label>
+    <input type="time" id="start" value="11:30" step="60">
+    <button type="button" id="reset" class="reset">Reset to 11:30</button>
+    <span class="fine">Use the actual start time from the TCS app once your runner crosses the mat. Tap a mile to find it on the map.</span>
   </div>
 
   <div class="grid">
@@ -137,7 +141,7 @@ svg text{font-family:var(--body)}
     </div>
     <div class="panel note">
       <h2>About these times</h2>
-      <p>Times are gun time + (mile × pace) + the start delay you pick above. Many runners slow in the back half, so expect them nearer the 11:00 column after mile 20 (1st Ave → Bronx → 5th Ave hill). Locations are approximate cross streets, and the map is a schematic, not a street map. Confirm the wave start in the official app the day before.</p>
+      <p>Times are the start time you enter above + (mile × pace). Many runners slow in the back half, so expect them nearer the 11:00 column after mile 20 (1st Ave → Bronx → 5th Ave hill). Locations are approximate cross streets, and the map is a schematic, not a street map. Confirm the wave start in the official app the day before.</p>
     </div>
   </div>
 </div>
@@ -258,13 +262,20 @@ function select(m,scroll){
   for(const k in dots){const d=dots[k];d.c.setAttribute("r",+k===m?11:d.base);d.c.setAttribute("stroke-width",+k===m?4:2.2);}
   if(scroll){const r=document.querySelector(`.row[data-m="${m}"]`);r&&r.scrollIntoView({block:"center",behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});}
 }
-document.querySelectorAll(".seg button").forEach(b=>b.addEventListener("click",()=>{
-  delay=+b.dataset.d; document.querySelectorAll(".seg button").forEach(x=>x.setAttribute("aria-pressed",x===b));
-  try{localStorage.setItem("delay",delay)}catch(e){}
+const startEl=document.getElementById("start");
+function applyStart(v,save){
+  const m=/^(\d{1,2}):(\d{2})/.exec(v||"");
+  const mins=m?(+m[1])*60+(+m[2]):GUN;
+  delay=mins-GUN;
+  document.getElementById("startchip").textContent=fmtS(mins);
+  if(save){try{localStorage.setItem("start",m?v:"11:30")}catch(e){}}
   render();
-}));
-try{const d=localStorage.getItem("delay");if(d!==null){delay=+d;document.querySelectorAll(".seg button").forEach(x=>x.setAttribute("aria-pressed",+x.dataset.d===delay));}}catch(e){}
-render();
+}
+startEl.addEventListener("input",()=>applyStart(startEl.value,true));
+startEl.addEventListener("change",()=>applyStart(startEl.value,true));
+document.getElementById("reset").addEventListener("click",()=>{startEl.value="11:30";applyStart("11:30",true);});
+try{const s=localStorage.getItem("start");if(s)startEl.value=s;}catch(e){}
+applyStart(startEl.value,false);
 </script>
-
-</body></html>
+</body>
+</html>
