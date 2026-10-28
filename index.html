@@ -14,16 +14,19 @@
   --bg:#f3f5f8; --surface:#ffffff; --fg:#14202e; --muted:#5b6878; --line:#d5dbe3;
   --route:#ff6a13; --route-soft:#ffe3d1; --blue:#1f4fa8; --water:#dbe7f5; --land:#eef1f5;
   --nogo:#9aa4b1;
+  --orange:#ff6a13; --orange-soft:#ffe3d1; --wave-blue:#0066cc; --wave-blue-soft:#e6f0ff; --pink:#ff1493; --pink-soft:#ffe6f5;
   --display:"Barlow Condensed","Arial Narrow",sans-serif;
   --body:"Source Sans 3",system-ui,sans-serif;
   --mono:"JetBrains Mono",ui-monospace,monospace;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#0f151d; --surface:#17202b; --fg:#e8edf3; --muted:#9aa7b6; --line:#2a3644;
-  --route:#ff7f33; --route-soft:#3a2416; --blue:#7fa6ee; --water:#16283d; --land:#1b2532; --nogo:#5f6b79; color-scheme:dark}}
+  --route:#ff7f33; --route-soft:#3a2416; --blue:#7fa6ee; --water:#16283d; --land:#1b2532; --nogo:#5f6b79;
+  --orange:#ff7f33; --orange-soft:#3a2416; --wave-blue:#5599ff; --wave-blue-soft:#1a2d44; --pink:#ff69b4; --pink-soft:#3d1a2e; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0f151d; --surface:#17202b; --fg:#e8edf3; --muted:#9aa7b6; --line:#2a3644;
-  --route:#ff7f33; --route-soft:#3a2416; --blue:#7fa6ee; --water:#16283d; --land:#1b2532; --nogo:#5f6b79; color-scheme:dark}
+  --route:#ff7f33; --route-soft:#3a2416; --blue:#7fa6ee; --water:#16283d; --land:#1b2532; --nogo:#5f6b79;
+  --orange:#ff7f33; --orange-soft:#3a2416; --wave-blue:#5599ff; --wave-blue-soft:#1a2d44; --pink:#ff69b4; --pink-soft:#3d1a2e; color-scheme:dark}
 body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.45;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
 .wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
@@ -38,6 +41,14 @@ h1 span{color:var(--route)}
 .controls label{color:var(--muted)}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:var(--surface)}
 .seg button{font:inherit;font-family:var(--mono);font-size:.85rem;border:0;background:transparent;color:var(--fg);padding:6px 10px;cursor:pointer}
+.seg button.active{background:var(--route);color:#fff;font-weight:600}
+.color-btn{font:inherit;font-family:var(--display);font-weight:600;font-size:.9rem;letter-spacing:.04em;text-transform:uppercase;border:2px solid;border-radius:6px;padding:6px 14px;cursor:pointer;transition:all .15s}
+.color-btn.orange{border-color:var(--orange);color:var(--orange)}
+.color-btn.orange.active{background:var(--orange);color:#fff}
+.color-btn.blue{border-color:var(--wave-blue);color:var(--wave-blue)}
+.color-btn.blue.active{background:var(--wave-blue);color:#fff}
+.color-btn.pink{border-color:var(--pink);color:var(--pink)}
+.color-btn.pink.active{background:var(--pink);color:#fff}
 #start{font-family:var(--mono);font-size:1rem;font-variant-numeric:tabular-nums;color:var(--fg);background:var(--surface);border:2px solid var(--route);border-radius:6px;padding:5px 8px}
 .reset{font:inherit;font-size:.85rem;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:6px 10px;cursor:pointer}
 .reset:hover{border-color:var(--route)}
@@ -85,20 +96,37 @@ svg text{font-family:var(--body)}
   <header>
     <div>
       <h1>NYC Marathon <span>Cheer Map</span></h1>
-      <p class="sub">Sunday, Nov 1, 2026 · Staten Island to Central Park · when to be where for a 10–11 min/mile runner</p>
+      <p class="sub">Sunday, Nov 2, 2025 · Staten Island to Central Park · when to be where for a 10–11 min/mile runner</p>
     </div>
     <div class="bib">
-      <div class="chip">Wave <b>5</b></div>
+      <div class="chip">Wave <b id="wavechip">5</b></div>
       <div class="chip">Start <b id="startchip">11:30</b></div>
+      <div class="chip">Color <b id="colorchip">Orange</b></div>
       <div class="chip">Pace <b>10:00–11:00</b>/mi</div>
       <div class="chip">Finish <b id="finchip">3:52–4:18 PM</b></div>
     </div>
   </header>
 
   <div class="controls">
-    <label for="start">Crossed the start mat at:</label>
+    <label>Wave:</label>
+    <div class="seg" id="waves">
+      <button data-wave="1" data-time="9:10">1</button>
+      <button data-wave="2" data-time="9:45">2</button>
+      <button data-wave="3" data-time="10:20">3</button>
+      <button data-wave="4" data-time="10:55">4</button>
+      <button data-wave="5" data-time="11:30" class="active">5</button>
+    </div>
+    <label>Color:</label>
+    <div style="display:flex;gap:8px">
+      <button class="color-btn orange active" data-color="orange">Orange</button>
+      <button class="color-btn blue" data-color="blue">Blue</button>
+      <button class="color-btn pink" data-color="pink">Pink</button>
+    </div>
+  </div>
+  <div class="controls">
+    <label for="start">Or adjust start time:</label>
     <input type="time" id="start" value="11:30" step="60">
-    <button type="button" id="reset" class="reset">Reset to 11:30</button>
+    <button type="button" id="reset" class="reset">Reset</button>
     <span class="fine">Use the actual start time from the TCS app once your runner crosses the mat. Tap a mile to find it on the map.</span>
   </div>
 
@@ -106,7 +134,8 @@ svg text{font-family:var(--body)}
     <div class="panel map">
       <svg id="map" viewBox="0 0 420 760" role="img" aria-label="Schematic map of the NYC Marathon course with mile markers"></svg>
       <div class="legend">
-        <span><i style="background:var(--route)"></i>Course</span>
+        <span><i id="legend-color" style="background:var(--orange)"></i>Your color route</span>
+        <span><i style="background:var(--route)"></i>Common route (mile 8+)</span>
         <span><i style="background:var(--nogo)"></i>Bridge, no spectators</span>
         <span>★ Suggested cheer spots</span>
       </div>
@@ -140,6 +169,10 @@ svg text{font-family:var(--body)}
       </ul>
     </div>
     <div class="panel note">
+      <h2>Wave colors explained</h2>
+      <p>Your race bib shows your wave (1-5), color (Orange, Blue, or Pink), and corral. The three colors take different paths on the Verrazzano Bridge and through Brooklyn: <b>Orange</b> runs on the upper deck left, <b>Blue</b> on upper deck right, and <b>Pink</b> on the lower deck. Blue and Pink merge at mile 3.2, while Orange runs on the left side of 4th Ave. All colors merge at mile 8 (Barclays/Atlantic Ave) and run together the rest of the way.</p>
+    </div>
+    <div class="panel note">
       <h2>About these times</h2>
       <p>Times are the start time you enter above + (mile × pace). Many runners slow in the back half, so expect them nearer the 11:00 column after mile 20 (1st Ave → Bronx → 5th Ave hill). Locations are approximate cross streets, and the map is a schematic, not a street map. Confirm the wave start in the official app the day before.</p>
     </div>
@@ -147,7 +180,10 @@ svg text{font-family:var(--body)}
 </div>
 
 <script>
-const GUN = 11*60+30;
+let selectedWave = 5;
+let selectedColor = "orange";
+let GUN = 11*60+30; // Default Wave 5 start time
+const waveStarts = {1:"9:10", 2:"9:45", 3:"10:20", 4:"10:55", 5:"11:30"};
 const miles = [
   {m:1, where:"Verrazzano-Narrows Bridge, mid-span", area:"Staten Island → Brooklyn", train:"—", no:true, ll:[40.6066,-74.0450]},
   {m:2, where:"Bridge exit onto 92nd St", area:"Bay Ridge, Brooklyn", train:"—", no:true, ll:[40.6150,-74.0315]},
@@ -178,16 +214,29 @@ const miles = [
   {m:26, where:"Columbus Circle, back into the park", area:"Central Park", train:"A B C D 1 · 59th St-Columbus Circle", ll:[40.7685,-73.9812]},
   {m:26.2, where:"FINISH · W 67th St, Tavern on the Green", area:"Grandstands are ticketed; meet at Family Reunion, CPW 62nd–65th", train:"1 · 66th St · B C · 72nd St", fin:true, ll:[40.7722,-73.9775]},
 ];
-// route waypoints between miles (lat, lon)
-const route = [
-  [40.6040,-74.0605],[40.6066,-74.0450],[40.6130,-74.0340],[40.6150,-74.0315],[40.6168,-74.0305],
-  [40.6222,-74.0282],[40.6352,-74.0205],[40.6482,-74.0092],[40.6607,-73.9962],[40.6772,-73.9832],[40.6838,-73.9768],
+// route waypoints between miles (lat, lon) - common route after mile 8
+const commonRoute = [
   [40.6862,-73.9700],[40.6888,-73.9600],[40.6895,-73.9548],[40.6985,-73.9566],[40.7112,-73.9620],[40.7180,-73.9575],[40.7212,-73.9545],
   [40.7300,-73.9545],[40.7325,-73.9530],[40.7400,-73.9510],[40.7445,-73.9490],[40.7465,-73.9468],[40.7505,-73.9420],[40.7535,-73.9405],
   [40.7568,-73.9520],[40.7595,-73.9605],[40.7612,-73.9600],[40.7728,-73.9515],[40.7852,-73.9425],[40.7968,-73.9335],[40.8020,-73.9298],
   [40.8075,-73.9268],[40.8105,-73.9255],[40.8122,-73.9300],[40.8135,-73.9340],[40.8128,-73.9390],[40.8030,-73.9450],[40.7922,-73.9528],
   [40.7845,-73.9585],[40.7798,-73.9628],[40.7700,-73.9695],[40.7665,-73.9718],[40.7645,-73.9735],[40.7668,-73.9800],[40.7685,-73.9812],[40.7722,-73.9775]
 ];
+// Different routes for each color (start to mile 8 merge point)
+const colorRoutes = {
+  orange: [ // Upper deck left → left side of 4th Ave
+    [40.6040,-74.0605],[40.6066,-74.0452],[40.6130,-74.0338],[40.6150,-74.0315],[40.6168,-74.0308],
+    [40.6222,-74.0286],[40.6352,-74.0210],[40.6482,-74.0098],[40.6607,-73.9968],[40.6772,-73.9838],[40.6838,-73.9768]
+  ],
+  blue: [ // Upper deck right → right side of 4th Ave → merge with pink
+    [40.6040,-74.0605],[40.6066,-74.0448],[40.6130,-74.0342],[40.6150,-74.0315],[40.6168,-74.0302],
+    [40.6222,-74.0278],[40.6352,-74.0200],[40.6482,-74.0086],[40.6607,-73.9956],[40.6772,-73.9826],[40.6838,-73.9768]
+  ],
+  pink: [ // Lower deck → right side of 4th Ave → merge with blue
+    [40.6040,-74.0605],[40.6066,-74.0448],[40.6130,-74.0342],[40.6150,-74.0315],[40.6168,-74.0302],
+    [40.6222,-74.0278],[40.6352,-74.0200],[40.6482,-74.0086],[40.6607,-73.9956],[40.6772,-73.9826],[40.6838,-73.9768]
+  ]
+};
 const LAT0=40.822, LON0=-74.072, K=3150, C=Math.cos(40.71*Math.PI/180);
 const P=([la,lo])=>[ (lo-LON0)*C*K + 12, (LAT0-la)*K + 10 ];
 const ns="http://www.w3.org/2000/svg", svg=document.getElementById("map");
@@ -206,14 +255,39 @@ blob([[40.7682,-73.9813],[40.7967,-73.9493],[40.8003,-73.9580],[40.7712,-73.9821
   const [x,y]=P([la,lo]); const tx=el("text",{x,y,"text-anchor":anc||"middle","font-size":t==="Central Park"?10:12,"font-weight":700,"letter-spacing":"1.5",fill:"var(--muted)",opacity:.8}); tx.textContent=t;
   if(t==="Central Park"){tx.setAttribute("transform",`rotate(-58 ${x} ${y})`);tx.setAttribute("font-weight",600);tx.setAttribute("letter-spacing",".5");}
 });
-// route: draw as segments; bridges grey
-const bridges=[[0,3],[19,22],[23,27],[31,36]];
-const pts=route.map(P);
-el("polyline",{points:pts.map(p=>p.join(",")).join(" "),fill:"none",stroke:"var(--surface)","stroke-width":9,"stroke-linejoin":"round","stroke-linecap":"round"});
-el("polyline",{points:pts.map(p=>p.join(",")).join(" "),fill:"none",stroke:"var(--route)","stroke-width":5,"stroke-linejoin":"round","stroke-linecap":"round"});
-bridges.forEach(([a,b])=>el("polyline",{points:pts.slice(a,b+1).map(p=>p.join(",")).join(" "),fill:"none",stroke:"var(--nogo)","stroke-width":5,"stroke-linecap":"round","stroke-dasharray":"2 4"}));
+// route: draw function to update when color changes
+let routeGroup;
+function drawRoute() {
+  if(routeGroup) routeGroup.remove();
+  routeGroup = el("g",{id:"route-group"});
+  const currentRoute = [...colorRoutes[selectedColor], ...commonRoute];
+  const pts = currentRoute.map(P);
+  const bridges = [[0,3],[19,22],[23,27],[31,36]];
+
+  // White outline
+  el("polyline",{points:pts.map(p=>p.join(",")).join(" "),fill:"none",stroke:"var(--surface)","stroke-width":9,"stroke-linejoin":"round","stroke-linecap":"round"},routeGroup);
+
+  // Color-coded route segments
+  const colorVar = selectedColor === "orange" ? "var(--orange)" : selectedColor === "blue" ? "var(--wave-blue)" : "var(--pink)";
+  const colorPts = colorRoutes[selectedColor].map(P);
+  const commonPts = commonRoute.map(P);
+
+  // Colored segment (start to mile 8)
+  el("polyline",{points:colorPts.map(p=>p.join(",")).join(" "),fill:"none",stroke:colorVar,"stroke-width":5,"stroke-linejoin":"round","stroke-linecap":"round"},routeGroup);
+
+  // Common segment (mile 8 to finish)
+  el("polyline",{points:commonPts.map(p=>p.join(",")).join(" "),fill:"none",stroke:"var(--route)","stroke-width":5,"stroke-linejoin":"round","stroke-linecap":"round"},routeGroup);
+
+  // Bridge dashes
+  bridges.forEach(([a,b])=>el("polyline",{points:pts.slice(a,b+1).map(p=>p.join(",")).join(" "),fill:"none",stroke:"var(--nogo)","stroke-width":5,"stroke-linecap":"round","stroke-dasharray":"2 4"},routeGroup));
+
+  // Update legend color
+  const legendColor = document.getElementById("legend-color");
+  if(legendColor) legendColor.style.background = colorVar;
+}
+drawRoute();
 // start
-const s=P(route[0]); el("circle",{cx:s[0],cy:s[1],r:7,fill:"var(--blue)"});
+const s=P([40.6040,-74.0605]); el("circle",{cx:s[0],cy:s[1],r:7,fill:"var(--blue)"});
 const st=el("text",{x:s[0]+2,y:s[1]+20,"font-size":11,"font-weight":700,fill:"var(--blue)"}); st.textContent="START · Ft Wadsworth";
 // labels offsets for legibility
 const off={1:[0,-12],2:[12,4],3:[-14,4],4:[-14,4],5:[-14,4],6:[-14,4],7:[-14,4],8:[-14,4],9:[0,-11],10:[12,4],11:[-14,4],12:[12,4],13:[12,4],14:[13,4],15:[0,-11],16:[-14,4],17:[-14,4],18:[-14,4],19:[-14,4],20:[12,6],21:[-6,-11],22:[-14,4],23:[-14,4],24:[-14,4],25:[6,14],26:[-14,0],26.2:[0,-12]};
@@ -273,8 +347,65 @@ function applyStart(v,save){
 }
 startEl.addEventListener("input",()=>applyStart(startEl.value,true));
 startEl.addEventListener("change",()=>applyStart(startEl.value,true));
-document.getElementById("reset").addEventListener("click",()=>{startEl.value="11:30";applyStart("11:30",true);});
-try{const s=localStorage.getItem("start");if(s)startEl.value=s;}catch(e){}
+document.getElementById("reset").addEventListener("click",()=>{
+  const resetTime = waveStarts[selectedWave];
+  startEl.value = resetTime;
+  applyStart(resetTime,true);
+});
+
+// Wave selection
+document.querySelectorAll("#waves button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    selectedWave = +btn.dataset.wave;
+    const time = btn.dataset.time;
+    const [h, m] = time.split(':').map(Number);
+    GUN = h * 60 + m;
+    document.querySelectorAll("#waves button").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById("wavechip").textContent = selectedWave;
+    startEl.value = time;
+    try{localStorage.setItem("wave", selectedWave)}catch(e){}
+    applyStart(time, true);
+  });
+});
+
+// Color selection
+document.querySelectorAll(".color-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    selectedColor = btn.dataset.color;
+    document.querySelectorAll(".color-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById("colorchip").textContent = selectedColor.charAt(0).toUpperCase() + selectedColor.slice(1);
+    try{localStorage.setItem("color", selectedColor)}catch(e){}
+    drawRoute();
+  });
+});
+
+// Load saved preferences
+try{
+  const s = localStorage.getItem("start");
+  const w = localStorage.getItem("wave");
+  const c = localStorage.getItem("color");
+  if(s) startEl.value = s;
+  if(w) {
+    selectedWave = +w;
+    const savedTime = waveStarts[selectedWave];
+    const [h, m] = savedTime.split(':').map(Number);
+    GUN = h * 60 + m;
+    document.querySelectorAll("#waves button").forEach(b => {
+      b.classList.toggle("active", +b.dataset.wave === selectedWave);
+    });
+    document.getElementById("wavechip").textContent = selectedWave;
+  }
+  if(c) {
+    selectedColor = c;
+    document.querySelectorAll(".color-btn").forEach(b => {
+      b.classList.toggle("active", b.dataset.color === selectedColor);
+    });
+    document.getElementById("colorchip").textContent = selectedColor.charAt(0).toUpperCase() + selectedColor.slice(1);
+    drawRoute();
+  }
+}catch(e){}
 applyStart(startEl.value,false);
 </script>
 </body>
