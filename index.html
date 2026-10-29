@@ -197,56 +197,56 @@ const waveStarts = {1:"9:10", 2:"9:45", 3:"10:20", 4:"10:55", 5:"11:30"};
 let paceMin = 10;
 let paceMax = 11;
 const miles = [
-  {m:1, where:"Verrazzano-Narrows Bridge, mid-span", area:"Staten Island → Brooklyn", train:"—", no:true, ll:[40.6066,-74.0450]},
-  {m:2, where:"Bridge exit onto 92nd St", area:"Bay Ridge, Brooklyn", train:"—", no:true, ll:[40.6150,-74.0315]},
-  {m:3, where:"4th Ave & ~86th St", area:"Bay Ridge", train:"R · 86th St", ll:[40.6222,-74.0282]},
+  {m:1, where:"Verrazzano-Narrows Bridge, mid-span", area:"Staten Island → Brooklyn", train:"—", no:true, ll:[40.606917,-74.043667]},
+  {m:2, where:"Bridge exit onto 92nd St", area:"Bay Ridge, Brooklyn", train:"—", no:true, ll:[40.614000,-74.027528]},
+  {m:3, where:"4th Ave & ~86th St", area:"Bay Ridge", train:"R · 86th St", ll:[40.626111,-74.026917]},
   {m:4, where:"4th Ave & ~66th St", area:"Bay Ridge / Sunset Park", train:"R · Bay Ridge Ave", ll:[40.6352,-74.0205]},
   {m:5, where:"4th Ave & ~45th St", area:"Sunset Park", train:"R · 45th St", ll:[40.6482,-74.0092]},
   {m:6, where:"4th Ave & ~25th St", area:"Greenwood Heights", train:"R · 25th St", ll:[40.6607,-73.9962]},
   {m:7, where:"4th Ave & ~Union St", area:"Park Slope", train:"R · Union St", ll:[40.6772,-73.9832]},
-  {m:8, where:"Flatbush & Atlantic Ave (Barclays)", area:"Fort Greene", train:"2 3 4 5 B D N Q R · Atlantic Av", pick:true, ll:[40.6838,-73.9768]},
+  {m:8, where:"Flatbush & Atlantic Ave (Barclays)", area:"Fort Greene", train:"2 3 4 5 B D N Q R · Atlantic Av", pick:true, ll:[40.68675,-73.978583]},
   {m:9, where:"Lafayette Ave & ~Classon Ave", area:"Clinton Hill", train:"C · Lafayette Av · G · Clinton-Washington", ll:[40.6888,-73.9600]},
   {m:10, where:"Bedford Ave & ~Flushing Ave", area:"Bed-Stuy / Williamsburg", train:"G · Flushing Av", ll:[40.6985,-73.9566]},
   {m:11, where:"Bedford Ave & ~S 3rd St", area:"Williamsburg", train:"J M Z · Marcy Av", ll:[40.7112,-73.9620]},
   {m:12, where:"Bedford Ave & ~N 12th St (McCarren Park)", area:"Williamsburg / Greenpoint", train:"L · Bedford Av · G · Nassau Av", ll:[40.7212,-73.9545]},
-  {m:13, where:"Manhattan Ave → McGuinness Blvd", area:"Greenpoint", train:"G · Greenpoint Av", ll:[40.7325,-73.9530]},
-  {m:13.1, half:true},
+  {m:13, where:"Manhattan Ave → McGuinness Blvd", area:"Greenpoint", train:"G · Greenpoint Av", ll:[40.736611,-73.952917]},
+  {m:13.1, half:true, ll:[40.738222,-73.953028]},
   {m:14, where:"Jackson Ave & ~44th Dr", area:"Long Island City, Queens", train:"7 · Vernon Blvd-Jackson Av · E M G · Court Sq", ll:[40.7465,-73.9468]},
   {m:15, where:"Queensboro Bridge", area:"Queens → Manhattan", train:"—", no:true, ll:[40.7568,-73.9520]},
   {m:16, where:"1st Ave & ~61st St", area:"Upper East Side", train:"N R W · Lexington Av/59 · 4 5 6 · 59th St", ll:[40.7612,-73.9600]},
   {m:17, where:"1st Ave & ~79th St", area:"Upper East Side", train:"Q · 72nd St or 86th St (2nd Ave)", pick:true, ll:[40.7728,-73.9515]},
   {m:18, where:"1st Ave & ~97th St", area:"East Harlem", train:"Q · 96th St (2nd Ave) · 6 · 96th St", pick:true, ll:[40.7852,-73.9425]},
   {m:19, where:"1st Ave & ~116th St", area:"East Harlem", train:"6 · 116th St", ll:[40.7968,-73.9335]},
-  {m:20, where:"Willis Ave Bridge → E 138th St", area:"Mott Haven, Bronx", train:"6 · 3rd Av-138th St", ll:[40.8105,-73.9255]},
+  {m:20, where:"Willis Ave Bridge → E 138th St", area:"Mott Haven, Bronx", train:"6 · 3rd Av-138th St", ll:[40.807833,-73.925583]},
   {m:21, where:"Madison Ave Bridge → 5th Ave & ~135th St", area:"Harlem", train:"2 3 · 135th St", ll:[40.8128,-73.9390]},
   {m:22, where:"5th Ave & ~120th St (Marcus Garvey Park)", area:"Harlem", train:"2 3 · 116th or 125th St", ll:[40.8030,-73.9450]},
   {m:23, where:"5th Ave & ~102nd St", area:"East Harlem / Museum Mile", train:"6 · 103rd St", pick:true, ll:[40.7922,-73.9528]},
   {m:24, where:"Central Park East Drive & ~84th St", area:"Central Park (enters at E 90th)", train:"4 5 6 · 86th St", ll:[40.7798,-73.9628]},
   {m:25, where:"Central Park, ~E 65th St → Central Park South", area:"Central Park", train:"N R W · 5th Av/59 St", ll:[40.7665,-73.9718]},
   {m:26, where:"Columbus Circle, back into the park", area:"Central Park", train:"A B C D 1 · 59th St-Columbus Circle", ll:[40.7685,-73.9812]},
-  {m:26.2, where:"FINISH · W 67th St, Tavern on the Green", area:"Grandstands are ticketed; meet at Family Reunion, CPW 62nd–65th", train:"1 · 66th St · B C · 72nd St", fin:true, ll:[40.7722,-73.9775]},
+  {m:26.2, where:"FINISH · W 67th St, Tavern on the Green", area:"Grandstands are ticketed; meet at Family Reunion, CPW 62nd–65th", train:"1 · 66th St · B C · 72nd St", fin:true, ll:[40.77257,-73.97676]},
 ];
 // route waypoints between miles (lat, lon) - common route after mile 8
 const commonRoute = [
   [40.6862,-73.9700],[40.6888,-73.9600],[40.6895,-73.9548],[40.6985,-73.9566],[40.7112,-73.9620],[40.7180,-73.9575],[40.7212,-73.9545],
   [40.7300,-73.9545],[40.7325,-73.9530],[40.7400,-73.9510],[40.7445,-73.9490],[40.7465,-73.9468],[40.7505,-73.9420],[40.7535,-73.9405],
   [40.7568,-73.9520],[40.7595,-73.9605],[40.7612,-73.9600],[40.7728,-73.9515],[40.7852,-73.9425],[40.7968,-73.9335],[40.8020,-73.9298],
-  [40.8075,-73.9268],[40.8105,-73.9255],[40.8122,-73.9300],[40.8135,-73.9340],[40.8128,-73.9390],[40.8030,-73.9450],[40.7922,-73.9528],
-  [40.7845,-73.9585],[40.7798,-73.9628],[40.7700,-73.9695],[40.7665,-73.9718],[40.7645,-73.9735],[40.7668,-73.9800],[40.7685,-73.9812],[40.7722,-73.9775]
+  [40.8075,-73.9268],[40.807833,-73.925583],[40.8122,-73.9300],[40.8135,-73.9340],[40.8128,-73.9390],[40.8030,-73.9450],[40.7922,-73.9528],
+  [40.7845,-73.9585],[40.7798,-73.9628],[40.7700,-73.9695],[40.7665,-73.9718],[40.7645,-73.9735],[40.7668,-73.9800],[40.7685,-73.9812],[40.77257,-73.97676]
 ];
 // Different routes for each color (start to mile 8 merge point)
 const colorRoutes = {
   orange: [ // Upper deck left → left side of 4th Ave
-    [40.6040,-74.0605],[40.6066,-74.0452],[40.6130,-74.0338],[40.6150,-74.0315],[40.6168,-74.0308],
-    [40.6222,-74.0286],[40.6352,-74.0210],[40.6482,-74.0098],[40.6607,-73.9968],[40.6772,-73.9838],[40.6838,-73.9768]
+    [40.601944,-74.059750],[40.606917,-74.043667],[40.614000,-74.027528],[40.626111,-74.026917],[40.6352,-74.0210],
+    [40.6482,-74.0098],[40.6607,-73.9968],[40.6772,-73.9838],[40.68675,-73.978583]
   ],
   blue: [ // Upper deck right → right side of 4th Ave → merge with pink
-    [40.6040,-74.0605],[40.6066,-74.0448],[40.6130,-74.0342],[40.6150,-74.0315],[40.6168,-74.0302],
-    [40.6222,-74.0278],[40.6352,-74.0200],[40.6482,-74.0086],[40.6607,-73.9956],[40.6772,-73.9826],[40.6838,-73.9768]
+    [40.601833,-74.061361],[40.606917,-74.043667],[40.614000,-74.027528],[40.626111,-74.026917],[40.6352,-74.0200],
+    [40.6482,-74.0086],[40.6607,-73.9956],[40.6772,-73.9826],[40.68675,-73.978583]
   ],
   pink: [ // Lower deck → right side of 4th Ave → merge with blue
-    [40.6040,-74.0605],[40.6066,-74.0448],[40.6130,-74.0342],[40.6150,-74.0315],[40.6168,-74.0302],
-    [40.6222,-74.0278],[40.6352,-74.0200],[40.6482,-74.0086],[40.6607,-73.9956],[40.6772,-73.9826],[40.6838,-73.9768]
+    [40.602278,-74.058583],[40.606917,-74.043667],[40.614000,-74.027528],[40.626111,-74.026917],[40.6352,-74.0200],
+    [40.6482,-74.0086],[40.6607,-73.9956],[40.6772,-73.9826],[40.68675,-73.978583]
   ]
 };
 // Initialize Leaflet Map with OpenStreetMap
