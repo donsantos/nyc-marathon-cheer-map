@@ -96,13 +96,13 @@ svg text{font-family:var(--body)}
   <header>
     <div>
       <h1>NYC Marathon <span>Cheer Map</span></h1>
-      <p class="sub">Sunday, Nov 2, 2025 · Staten Island to Central Park · when to be where for a 10–11 min/mile runner</p>
+      <p class="sub" id="subtitle">Sunday, Nov 2, 2025 · Staten Island to Central Park · when to be where for your runner</p>
     </div>
     <div class="bib">
       <div class="chip">Wave <b id="wavechip">5</b></div>
       <div class="chip">Start <b id="startchip">11:30</b></div>
       <div class="chip">Color <b id="colorchip">Orange</b></div>
-      <div class="chip">Pace <b>10:00–11:00</b>/mi</div>
+      <div class="chip">Pace <b id="pacechip">10:00–11:00</b>/mi</div>
       <div class="chip">Finish <b id="finchip">3:52–4:18 PM</b></div>
     </div>
   </header>
@@ -122,6 +122,12 @@ svg text{font-family:var(--body)}
       <button class="color-btn blue" data-color="blue">Blue</button>
       <button class="color-btn pink" data-color="pink">Pink</button>
     </div>
+  </div>
+  <div class="controls">
+    <label for="paceMin">Pace range (min/mi):</label>
+    <input type="number" id="paceMin" min="6" max="20" step="0.5" value="10" style="width:4em;font-family:var(--mono);font-size:1rem;padding:5px 8px;border:2px solid var(--line);border-radius:6px;background:var(--surface);color:var(--fg)">
+    <span style="color:var(--muted)">to</span>
+    <input type="number" id="paceMax" min="6" max="20" step="0.5" value="11" style="width:4em;font-family:var(--mono);font-size:1rem;padding:5px 8px;border:2px solid var(--line);border-radius:6px;background:var(--surface);color:var(--fg)">
   </div>
   <div class="controls">
     <label for="start">Or adjust start time:</label>
@@ -184,6 +190,8 @@ let selectedWave = 5;
 let selectedColor = "orange";
 let GUN = 11*60+30; // Default Wave 5 start time
 const waveStarts = {1:"9:10", 2:"9:45", 3:"10:20", 4:"10:55", 5:"11:30"};
+let paceMin = 10;
+let paceMax = 11;
 const miles = [
   {m:1, where:"Verrazzano-Narrows Bridge, mid-span", area:"Staten Island → Brooklyn", train:"—", no:true, ll:[40.6066,-74.0450]},
   {m:2, where:"Bridge exit onto 92nd St", area:"Bay Ridge, Brooklyn", train:"—", no:true, ll:[40.6150,-74.0315]},
@@ -309,13 +317,25 @@ const ht=el("text",{x:h[0]+10,y:h[1]+4,"font-size":10.5,"font-weight":700,fill:"
 let delay=0;
 const fmt=min=>{min=Math.round(min);let h=Math.floor(min/60)%24,m=min%60;const ap=h>=12?"PM":"AM";h=h%12||12;return `${h}:${String(m).padStart(2,"0")} ${ap}`;};
 const fmtS=min=>fmt(min).replace(/ (AM|PM)/,"");
+const fmtPace=(p)=>{const m=Math.floor(p);const s=Math.round((p-m)*60);return s>0?`${m}:${String(s).padStart(2,"0")}`:String(m);};
 const tb=document.getElementById("rows");
 function render(){
   tb.innerHTML="";
+  // Update pace chip and subtitle
+  const paceText = `${fmtPace(paceMin)}–${fmtPace(paceMax)}`;
+  document.getElementById("pacechip").textContent = paceText;
+  document.getElementById("subtitle").textContent = `Sunday, Nov 2, 2025 · Staten Island to Central Park · ${paceText} min/mile pace`;
+
+  // Update table headers
+  const thMin = document.querySelector('th:nth-child(3)');
+  const thMax = document.querySelector('th:nth-child(4)');
+  if(thMin) thMin.textContent = `At ${fmtPace(paceMin)}`;
+  if(thMax) thMax.textContent = `At ${fmtPace(paceMax)}`;
+
   const boro=(m)=>m<=2?null:m<=13?"Brooklyn":m<=15?"Queens":m<=19?"Manhattan · 1st Ave":m<=20?"The Bronx":"Manhattan · 5th Ave & Central Park";
   let last=null;
   miles.forEach(x=>{
-    const t10=GUN+delay+x.m*10, t11=GUN+delay+x.m*11;
+    const t10=GUN+delay+x.m*paceMin, t11=GUN+delay+x.m*paceMax;
     if(x.half){const tr=document.createElement("tr");tr.className="split";tr.innerHTML=`<td colspan="5">Halfway · 13.1 mi · ${fmtS(t10)}–${fmt(t11)} · Pulaski Bridge into Queens</td>`;tb.appendChild(tr);return;}
     const b=boro(x.m); if(b&&b!==last&&!x.fin){last=b;const tr=document.createElement("tr");tr.className="split";tr.innerHTML=`<td colspan="5">${b}</td>`;tb.appendChild(tr);}
     const tr=document.createElement("tr"); tr.className="row"+(x.no?" nogo":""); tr.tabIndex=0; tr.dataset.m=x.m;
@@ -326,7 +346,7 @@ function render(){
     tr.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();select(x.m);}});
     tb.appendChild(tr);
   });
-  document.getElementById("finchip").textContent=`${fmtS(GUN+delay+262)}–${fmt(GUN+delay+288.2)}`;
+  document.getElementById("finchip").textContent=`${fmtS(GUN+delay+26.2*paceMin)}–${fmt(GUN+delay+26.2*paceMax)}`;
   if(cur!=null) select(cur);
 }
 let cur=null;
@@ -381,12 +401,41 @@ document.querySelectorAll(".color-btn").forEach(btn => {
   });
 });
 
+// Pace inputs
+const paceMinEl = document.getElementById("paceMin");
+const paceMaxEl = document.getElementById("paceMax");
+function updatePace() {
+  paceMin = parseFloat(paceMinEl.value) || 10;
+  paceMax = parseFloat(paceMaxEl.value) || 11;
+  // Ensure min <= max
+  if(paceMin > paceMax) {
+    const temp = paceMin;
+    paceMin = paceMax;
+    paceMax = temp;
+    paceMinEl.value = paceMin;
+    paceMaxEl.value = paceMax;
+  }
+  try{
+    localStorage.setItem("paceMin", paceMin);
+    localStorage.setItem("paceMax", paceMax);
+  }catch(e){}
+  render();
+}
+paceMinEl.addEventListener("input", updatePace);
+paceMinEl.addEventListener("change", updatePace);
+paceMaxEl.addEventListener("input", updatePace);
+paceMaxEl.addEventListener("change", updatePace);
+
 // Load saved preferences
 try{
   const s = localStorage.getItem("start");
   const w = localStorage.getItem("wave");
   const c = localStorage.getItem("color");
+  const pm = localStorage.getItem("paceMin");
+  const px = localStorage.getItem("paceMax");
+
   if(s) startEl.value = s;
+
   if(w) {
     selectedWave = +w;
     const savedTime = waveStarts[selectedWave];
@@ -397,6 +446,7 @@ try{
     });
     document.getElementById("wavechip").textContent = selectedWave;
   }
+
   if(c) {
     selectedColor = c;
     document.querySelectorAll(".color-btn").forEach(b => {
@@ -404,6 +454,15 @@ try{
     });
     document.getElementById("colorchip").textContent = selectedColor.charAt(0).toUpperCase() + selectedColor.slice(1);
     drawRoute();
+  }
+
+  if(pm) {
+    paceMin = parseFloat(pm);
+    paceMinEl.value = paceMin;
+  }
+  if(px) {
+    paceMax = parseFloat(px);
+    paceMaxEl.value = paceMax;
   }
 }catch(e){}
 applyStart(startEl.value,false);
