@@ -105,7 +105,7 @@ svg text{font-family:var(--body)}
     <div class="bib">
       <div class="chip">Wave <b id="wavechip">5</b></div>
       <div class="chip">Start <b id="startchip">11:30</b></div>
-      <div class="chip">Color <b id="colorchip">Orange</b></div>
+      <div class="chip">Color <b id="colorchip">Blue</b></div>
       <div class="chip">Pace <b id="pacechip">10:00–11:00</b>/mi</div>
       <div class="chip">Finish <b id="finchip">3:52–4:18 PM</b></div>
     </div>
@@ -122,8 +122,8 @@ svg text{font-family:var(--body)}
     </div>
     <label>Color:</label>
     <div style="display:flex;gap:8px">
-      <button class="color-btn orange active" data-color="orange">Orange</button>
-      <button class="color-btn blue" data-color="blue">Blue</button>
+      <button class="color-btn orange" data-color="orange">Orange</button>
+      <button class="color-btn blue active" data-color="blue">Blue</button>
       <button class="color-btn pink" data-color="pink">Pink</button>
     </div>
   </div>
@@ -191,7 +191,7 @@ svg text{font-family:var(--body)}
 
 <script>
 let selectedWave = 5;
-let selectedColor = "orange";
+let selectedColor = "blue";
 let GUN = 11*60+30; // Default Wave 5 start time
 const waveStarts = {1:"9:10", 2:"9:45", 3:"10:20", 4:"10:55", 5:"11:30"};
 let paceMin = 10;
@@ -408,8 +408,45 @@ function applyStart(v,save){
 startEl.addEventListener("input",()=>applyStart(startEl.value,true));
 startEl.addEventListener("change",()=>applyStart(startEl.value,true));
 document.getElementById("reset").addEventListener("click",()=>{
-  const resetTime = waveStarts[selectedWave];
+  // Reset to defaults: Wave 5, Blue, 10-11 min pace, 11:30am start
+  selectedWave = 5;
+  selectedColor = "blue";
+  paceMin = 10;
+  paceMax = 11;
+  const resetTime = "11:30";
+  const [h, m] = resetTime.split(':').map(Number);
+  GUN = h * 60 + m;
+
+  // Update wave buttons
+  document.querySelectorAll("#waves button").forEach(b => {
+    b.classList.toggle("active", +b.dataset.wave === 5);
+  });
+  document.getElementById("wavechip").textContent = "5";
+
+  // Update color buttons
+  document.querySelectorAll(".color-btn").forEach(b => {
+    b.classList.toggle("active", b.dataset.color === "blue");
+  });
+  document.getElementById("colorchip").textContent = "Blue";
+
+  // Update pace inputs
+  paceMinEl.value = "10:00";
+  paceMaxEl.value = "11:00";
+
+  // Update start time
   startEl.value = resetTime;
+
+  // Save to localStorage
+  try{
+    localStorage.setItem("wave", 5);
+    localStorage.setItem("color", "blue");
+    localStorage.setItem("paceMin", 10);
+    localStorage.setItem("paceMax", 11);
+    localStorage.setItem("start", resetTime);
+  }catch(e){}
+
+  // Redraw map and render table
+  if(map) drawRoute();
   applyStart(resetTime,true);
 });
 
