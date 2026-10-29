@@ -257,10 +257,10 @@ function initMap() {
   // Create map centered on the course
   map = L.map('map').setView([40.74, -73.96], 11);
 
-  // Add Stamen Toner Lite tiles (simple, minimal design)
-  L.tileLayer('https://tiles.stadiamaps.com/tiles/stamen_toner_lite/{z}/{x}/{y}{r}.png', {
-    attribution: '© Stadia Maps © Stamen Design © OpenStreetMap contributors',
-    maxZoom: 18
+  // Add Humanitarian OSM tiles (free, no auth required)
+  L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors, Tiles style by Humanitarian OpenStreetMap Team',
+    maxZoom: 19
   }).addTo(map);
 
   drawRoute();
