@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}</style>
 <title>NYC Marathon Cheer Map</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;800&family=Source+Sans+3:wght@400;600;700&family=JetBrains+Mono:wght@500&display=swap">
@@ -58,7 +60,8 @@ h1 span{color:var(--route)}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:10px}
 .map{padding:10px;position:sticky;top:max(12px,env(safe-area-inset-top,0px))}
 @media (max-width:860px){.map{position:static}}
-.map svg{width:100%;height:auto;display:block;max-height:82vh}
+#map{width:100%;height:82vh;min-height:500px;border-radius:6px;overflow:hidden}
+@media (max-width:860px){#map{height:60vh}}
 .legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.8rem;color:var(--muted);padding:6px 6px 2px}
 .legend i{display:inline-block;width:18px;height:4px;border-radius:2px;vertical-align:middle;margin-right:5px}
 .sheet{overflow-x:auto}
@@ -87,6 +90,7 @@ td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
 .note ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
 .fine{font-size:.8rem;color:var(--muted)}
 svg text{font-family:var(--body)}
+.custom-marker{background:transparent!important;border:none!important}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -138,7 +142,7 @@ svg text{font-family:var(--body)}
 
   <div class="grid">
     <div class="panel map">
-      <svg id="map" viewBox="0 0 420 760" role="img" aria-label="Schematic map of the NYC Marathon course with mile markers"></svg>
+      <div id="map"></div>
       <div class="legend">
         <span><i id="legend-color" style="background:var(--orange)"></i>Your color route</span>
         <span><i style="background:var(--route)"></i>Common route (mile 8+)</span>
@@ -245,73 +249,95 @@ const colorRoutes = {
     [40.6222,-74.0278],[40.6352,-74.0200],[40.6482,-74.0086],[40.6607,-73.9956],[40.6772,-73.9826],[40.6838,-73.9768]
   ]
 };
-const LAT0=40.822, LON0=-74.072, K=3150, C=Math.cos(40.71*Math.PI/180);
-const P=([la,lo])=>[ (lo-LON0)*C*K + 12, (LAT0-la)*K + 10 ];
-const ns="http://www.w3.org/2000/svg", svg=document.getElementById("map");
-const el=(t,a,parent=svg)=>{const e=document.createElementNS(ns,t);for(const k in a)e.setAttribute(k,a[k]);parent.appendChild(e);return e;};
-// rough land masses (schematic)
-const blob=(pts,fill)=>el("path",{d:"M"+pts.map(p=>P(p).map(n=>n.toFixed(1)).join(",")).join("L")+"Z",fill,stroke:"none"});
-el("rect",{x:0,y:0,width:420,height:760,fill:"var(--water)"});
-blob([[40.640,-74.075],[40.640,-74.072],[40.618,-74.068],[40.603,-74.058],[40.596,-74.072],[40.596,-74.076]],"var(--land)"); // Staten Is.
-blob([[40.596,-74.040],[40.614,-74.038],[40.640,-74.025],[40.655,-74.020],[40.680,-74.000],[40.700,-73.995],[40.705,-73.975],[40.722,-73.962],[40.735,-73.960],[40.739,-73.953],[40.725,-73.930],[40.690,-73.905],[40.596,-73.905]],"var(--land)"); // Brooklyn
-blob([[40.739,-73.953],[40.746,-73.958],[40.760,-73.946],[40.775,-73.938],[40.790,-73.912],[40.790,-73.905],[40.725,-73.905],[40.725,-73.930]],"var(--land)"); // Queens
-blob([[40.700,-74.019],[40.708,-73.998],[40.712,-73.976],[40.728,-73.972],[40.745,-73.970],[40.760,-73.957],[40.775,-73.943],[40.790,-73.935],[40.798,-73.928],[40.806,-73.932],[40.814,-73.935],[40.822,-73.938],[40.822,-73.955],[40.800,-73.973],[40.770,-73.995],[40.740,-74.010],[40.715,-74.016]],"var(--land)"); // Manhattan
-blob([[40.806,-73.932],[40.802,-73.924],[40.806,-73.910],[40.822,-73.905],[40.822,-73.938],[40.814,-73.935]],"var(--land)"); // Bronx
-// Central Park
-blob([[40.7682,-73.9813],[40.7967,-73.9493],[40.8003,-73.9580],[40.7712,-73.9821]].map(x=>x),"var(--line)").setAttribute("opacity",".55");
-[["STATEN ISLAND",40.612,-74.071,"end"],["BROOKLYN",40.655,-73.960],["QUEENS",40.758,-73.922],["MANHATTAN",40.752,-73.990],["BRONX",40.818,-73.915],["Central Park",40.784,-73.974]].forEach(([t,la,lo,anc])=>{
-  const [x,y]=P([la,lo]); const tx=el("text",{x,y,"text-anchor":anc||"middle","font-size":t==="Central Park"?10:12,"font-weight":700,"letter-spacing":"1.5",fill:"var(--muted)",opacity:.8}); tx.textContent=t;
-  if(t==="Central Park"){tx.setAttribute("transform",`rotate(-58 ${x} ${y})`);tx.setAttribute("font-weight",600);tx.setAttribute("letter-spacing",".5");}
-});
-// route: draw function to update when color changes
-let routeGroup;
+// Initialize Leaflet Map with OpenStreetMap
+let map, markers = {}, routePolylines = [];
+const colorHex = {orange:"#ff6a13", blue:"#0066cc", pink:"#ff1493"};
+
+function initMap() {
+  // Create map centered on the course
+  map = L.map('map').setView([40.74, -73.96], 11);
+
+  // Add Stamen Toner Lite tiles (simple, minimal design)
+  L.tileLayer('https://tiles.stadiamaps.com/tiles/stamen_toner_lite/{z}/{x}/{y}{r}.png', {
+    attribution: '© Stadia Maps © Stamen Design © OpenStreetMap contributors',
+    maxZoom: 18
+  }).addTo(map);
+
+  drawRoute();
+  drawMarkers();
+}
+
 function drawRoute() {
-  if(routeGroup) routeGroup.remove();
-  routeGroup = el("g",{id:"route-group"});
-  const currentRoute = [...colorRoutes[selectedColor], ...commonRoute];
-  const pts = currentRoute.map(P);
-  const bridges = [[0,3],[19,22],[23,27],[31,36]];
+  // Clear existing polylines
+  routePolylines.forEach(p => map.removeLayer(p));
+  routePolylines = [];
 
-  // White outline
-  el("polyline",{points:pts.map(p=>p.join(",")).join(" "),fill:"none",stroke:"var(--surface)","stroke-width":9,"stroke-linejoin":"round","stroke-linecap":"round"},routeGroup);
+  const currentColor = colorHex[selectedColor];
 
-  // Color-coded route segments
-  const colorVar = selectedColor === "orange" ? "var(--orange)" : selectedColor === "blue" ? "var(--wave-blue)" : "var(--pink)";
-  const colorPts = colorRoutes[selectedColor].map(P);
-  const commonPts = commonRoute.map(P);
+  // Convert to Leaflet LatLng format
+  const colorPath = colorRoutes[selectedColor].map(([lat,lng]) => [lat,lng]);
+  const commonPath = commonRoute.map(([lat,lng]) => [lat,lng]);
 
-  // Colored segment (start to mile 8)
-  el("polyline",{points:colorPts.map(p=>p.join(",")).join(" "),fill:"none",stroke:colorVar,"stroke-width":5,"stroke-linejoin":"round","stroke-linecap":"round"},routeGroup);
+  // Draw color-specific route (start to mile 8)
+  const colorLine = L.polyline(colorPath, {
+    color: currentColor,
+    weight: 5,
+    opacity: 0.8
+  }).addTo(map);
+  routePolylines.push(colorLine);
 
-  // Common segment (mile 8 to finish)
-  el("polyline",{points:commonPts.map(p=>p.join(",")).join(" "),fill:"none",stroke:"var(--route)","stroke-width":5,"stroke-linejoin":"round","stroke-linecap":"round"},routeGroup);
-
-  // Bridge dashes
-  bridges.forEach(([a,b])=>el("polyline",{points:pts.slice(a,b+1).map(p=>p.join(",")).join(" "),fill:"none",stroke:"var(--nogo)","stroke-width":5,"stroke-linecap":"round","stroke-dasharray":"2 4"},routeGroup));
+  // Draw common route (mile 8 to finish)
+  const commonLine = L.polyline(commonPath, {
+    color: colorHex.orange,
+    weight: 5,
+    opacity: 0.8
+  }).addTo(map);
+  routePolylines.push(commonLine);
 
   // Update legend color
   const legendColor = document.getElementById("legend-color");
-  if(legendColor) legendColor.style.background = colorVar;
+  if(legendColor) legendColor.style.background = currentColor;
 }
-drawRoute();
-// start
-const s=P([40.6040,-74.0605]); el("circle",{cx:s[0],cy:s[1],r:7,fill:"var(--blue)"});
-const st=el("text",{x:s[0]+2,y:s[1]+20,"font-size":11,"font-weight":700,fill:"var(--blue)"}); st.textContent="START · Ft Wadsworth";
-// labels offsets for legibility
-const off={1:[0,-12],2:[12,4],3:[-14,4],4:[-14,4],5:[-14,4],6:[-14,4],7:[-14,4],8:[-14,4],9:[0,-11],10:[12,4],11:[-14,4],12:[12,4],13:[12,4],14:[13,4],15:[0,-11],16:[-14,4],17:[-14,4],18:[-14,4],19:[-14,4],20:[12,6],21:[-6,-11],22:[-14,4],23:[-14,4],24:[-14,4],25:[6,14],26:[-14,0],26.2:[0,-12]};
-const dots={};
-miles.filter(x=>!x.half).forEach(x=>{
-  const [cx,cy]=P(x.ll); const g=el("g",{style:"cursor:pointer"}); g.dataset.m=x.m;
-  const c=el("circle",{cx,cy,r:x.fin?8:6,fill:x.fin?"var(--fg)":(x.no?"var(--nogo)":"var(--surface)"),stroke:x.no?"var(--nogo)":"var(--route)","stroke-width":2.2},g);
-  const [dx,dy]=off[x.m]||[12,4];
-  const t=el("text",{x:cx+dx,y:cy+dy,"text-anchor":dx<0?"end":(dx===0?"middle":"start"),"font-size":x.pick?13:11.5,"font-weight":800,fill:x.no?"var(--nogo)":"var(--fg)"},g);
-  t.textContent=(x.pick?"★ ":"")+(x.fin?"FINISH":x.m);
-  g.addEventListener("click",()=>select(x.m,true));
-  dots[x.m]={c,base:c.getAttribute("r")};
-});
-// halfway marker
-const h=P([40.7400,-73.9510]); el("rect",{x:h[0]-4,y:h[1]-4,width:8,height:8,fill:"var(--blue)",transform:`rotate(45 ${h[0]} ${h[1]})`});
-const ht=el("text",{x:h[0]+10,y:h[1]+4,"font-size":10.5,"font-weight":700,fill:"var(--blue)"}); ht.textContent="HALF · Pulaski Br.";
+
+function drawMarkers() {
+  // Clear existing markers
+  Object.values(markers).forEach(m => map.removeLayer(m.marker));
+  markers = {};
+
+  miles.filter(x => !x.half).forEach(x => {
+    const position = [x.ll[0], x.ll[1]];
+    const isCheerSpot = x.pick;
+    const isNoSpectators = x.no;
+    const isFinish = x.fin;
+
+    // Create custom icon
+    const iconSize = isFinish ? 24 : (isCheerSpot ? 20 : 16);
+    const iconColor = isFinish ? "#14202e" : (isNoSpectators ? "#9aa4b1" : "#ff6a13");
+
+    const customIcon = L.divIcon({
+      className: 'custom-marker',
+      html: `<div style="background:${iconColor};border:2px solid white;border-radius:50%;width:${iconSize}px;height:${iconSize}px;display:flex;align-items:center;justify-content:center;color:white;font-family:var(--display);font-weight:${isCheerSpot?'bold':'600'};font-size:${isCheerSpot?'13px':'11px'};box-shadow:0 2px 6px rgba(0,0,0,0.3)">${isFinish ? 'F' : x.m}</div>`,
+      iconSize: [iconSize, iconSize],
+      iconAnchor: [iconSize/2, iconSize/2]
+    });
+
+    const marker = L.marker(position, {
+      icon: customIcon,
+      title: `Mile ${x.m}: ${x.where}`
+    }).addTo(map);
+
+    marker.on('click', () => {
+      select(x.m, true);
+    });
+
+    markers[x.m] = {marker, isCheerSpot, isNoSpectators, isFinish};
+  });
+}
+
+// Call initMap when the page loads
+if(typeof L !== 'undefined') {
+  window.addEventListener('load', initMap);
+}
 
 // table
 let delay=0;
@@ -353,7 +379,26 @@ let cur=null;
 function select(m,scroll){
   cur=m;
   document.querySelectorAll(".row").forEach(r=>r.classList.toggle("on",+r.dataset.m===m));
-  for(const k in dots){const d=dots[k];d.c.setAttribute("r",+k===m?11:d.base);d.c.setAttribute("stroke-width",+k===m?4:2.2);}
+
+  // Highlight selected marker
+  Object.keys(markers).forEach(k => {
+    const {marker, isCheerSpot, isNoSpectators, isFinish} = markers[k];
+    const isSelected = +k === m;
+
+    const iconSize = isSelected ? 28 : (isFinish ? 24 : (isCheerSpot ? 20 : 16));
+    const iconColor = isFinish ? "#14202e" : (isNoSpectators ? "#9aa4b1" : "#ff6a13");
+    const borderWidth = isSelected ? 4 : 2;
+
+    const customIcon = L.divIcon({
+      className: 'custom-marker',
+      html: `<div style="background:${iconColor};border:${borderWidth}px solid white;border-radius:50%;width:${iconSize}px;height:${iconSize}px;display:flex;align-items:center;justify-content:center;color:white;font-family:var(--display);font-weight:${isCheerSpot?'bold':'600'};font-size:${isSelected?'14px':(isCheerSpot?'13px':'11px')};box-shadow:0 2px 6px rgba(0,0,0,0.3)">${isFinish ? 'F' : k}</div>`,
+      iconSize: [iconSize, iconSize],
+      iconAnchor: [iconSize/2, iconSize/2]
+    });
+
+    marker.setIcon(customIcon);
+  });
+
   if(scroll){const r=document.querySelector(`.row[data-m="${m}"]`);r&&r.scrollIntoView({block:"center",behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});}
 }
 const startEl=document.getElementById("start");
@@ -397,7 +442,7 @@ document.querySelectorAll(".color-btn").forEach(btn => {
     btn.classList.add("active");
     document.getElementById("colorchip").textContent = selectedColor.charAt(0).toUpperCase() + selectedColor.slice(1);
     try{localStorage.setItem("color", selectedColor)}catch(e){}
-    drawRoute();
+    if(map) drawRoute();
   });
 });
 
@@ -478,7 +523,7 @@ try{
       b.classList.toggle("active", b.dataset.color === selectedColor);
     });
     document.getElementById("colorchip").textContent = selectedColor.charAt(0).toUpperCase() + selectedColor.slice(1);
-    drawRoute();
+    if(map) drawRoute();
   }
 
   if(pm) {
